@@ -4,42 +4,33 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-
         <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+        {{-- NEW STRUCTURE with a textured background --}}
+        <div class="min-h-screen bg-cover bg-center bg-fixed" style="background-image: url('{{ asset('images/dark-texture.jpg') }}')">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
-            @if (isset($header))
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
+            <div class="py-12">
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    
+                    <!-- Page Heading -->
+                    @if (isset($header))
+                        <header class="mb-6">
+                            <div class="max-w-7xl mx-auto">
+                                {{ $header }}
+                            </div>
+                        </header>
+                    @endif
 
-            {{-- THIS IS THE MAIN CONTENT WRAPPER WE WILL MODIFY --}}
-            <main
-                class="relative bg-cover bg-center bg-fixed"
-                style="background-image: url('{{ asset('images/hero-background.jpg') }}');"
-            >
-                {{-- This is the dark overlay --}}
-                <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+                    <!-- Main Content -->
+                    <main>
+                        {{ $slot }}
+                    </main>
 
-                {{-- This div now holds the actual page content and sits on top of the overlay --}}
-                <div class="relative z-10">
-                    {{ $slot }}
                 </div>
-            </main>
+            </div>
         </div>
     </body>
 </html>

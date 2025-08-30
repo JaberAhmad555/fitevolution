@@ -28,6 +28,7 @@ class ProfileUpdateRequest extends FormRequest
             'fitness_goal' => ['nullable', 'string', 'max:255'],
             'weight_kg' => ['nullable', 'numeric', 'min:0'], 
             'height_cm' => ['nullable', 'integer', 'min:0'],
+            'wallet_address' => ['nullable', 'string', 'max:255', 'regex:/^0x[a-fA-F0-9]{40}$/'],
         ];
     }
 }

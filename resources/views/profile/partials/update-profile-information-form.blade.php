@@ -68,6 +68,14 @@
             <x-input-error class="mt-2" :messages="$errors->get('height_cm')" />
         </div>
 
+
+        <!-- After the Height (cm) div -->
+        <div class="mt-4">
+            <x-input-label for="wallet_address" :value="__('Crypto Wallet Address (for NFT Rewards)')" />
+            <x-text-input id="wallet_address" name="wallet_address" type="text" class="mt-1 block w-full" :value="old('wallet_address', $user->wallet_address)" placeholder="0x..." />
+            <x-input-error class="mt-2" :messages="$errors->get('wallet_address')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 

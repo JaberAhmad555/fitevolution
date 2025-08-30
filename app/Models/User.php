@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\TimeCapsule;
+use App\Models\Challenge;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -26,6 +28,7 @@ class User extends Authenticatable
         'fitness_goal',
         'weight_kg', 
         'height_cm',
+        'wallet_address',
     ];
 
     /**
@@ -63,4 +66,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(TimeCapsule::class);
     }
+
+    public function challenges(): BelongsToMany
+    {
+        return $this->belongsToMany(Challenge::class, 'challenge_user');
+    }
+    // In app/Models/User.php
+    public function achievements() { return $this->hasMany(Achievement::class); }
 }

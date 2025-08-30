@@ -15,12 +15,33 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.index')">
-                        {{ __('My Workouts') }}
+                    <x-nav-link :href="route('workouts.journey')" :active="request()->routeIs('workouts.journey')">
+                        {{ __('My Journey') }}
                     </x-nav-link>
                     <x-nav-link :href="route('time-capsule.index')" :active="request()->routeIs('time-capsule.index')">
                         {{ __('Time Capsule') }}
                     </x-nav-link>
+                    {{-- Inside the main navigation div --}}
+                    
+
+                    {{-- ADD THIS NEW LINK --}}
+                    <x-nav-link :href="route('challenges.index')" :active="request()->routeIs('challenges.index')">
+                        {{ __('Challenges') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('achievements.index')" :active="request()->routeIs('achievements.index')">
+                        {{ __('My Awards') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('progress.index')" :active="request()->routeIs('progress.index')">
+                        {{ __('My Progress') }}
+                    </x-nav-link>
+
+                    {{-- ADD THIS NEW LINK --}}
+                    <x-nav-link :href="route('travel.index')" :active="request()->routeIs('travel.index')">
+                        {{ __('Travel') }}
+                    </x-nav-link>
+
 
 
                 </div>

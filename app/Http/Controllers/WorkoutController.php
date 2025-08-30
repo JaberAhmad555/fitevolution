@@ -6,6 +6,7 @@ use App\Models\Workout;                 // <-- Add this line
 use App\Services\CalorieService;        // <-- Add this line
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\AchievementService;
 
 class WorkoutController extends Controller
 {
@@ -31,27 +32,49 @@ class WorkoutController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, CalorieService $calorieService) // The red line will now be gone
-    {
-        
+    // In app/Http/Controllers/WorkoutController.php
 
-        $validated = $request->validate([
+    public function store(Request $request, CalorieService $calorieService,AchievementService $achievementService)
+    {
+        // FIX #1: Added 'jpg', 'png', 'jpeg' to the validation rule
+        $validatedData = $request->validate([
             'type' => 'required|string|in:running,cycling,weightlifting',
             'workout_date' => 'required|date',
-            'duration_minutes' => 'required|integer|min:1', // It's now a required, top-level field
+            'duration_minutes' => 'required|integer|min:1',
             'details' => 'nullable|array',
+            'route' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpg,png,jpeg|max:2048', // More mime types
+            'notes' => 'nullable|string|max:2000',
+            'mood' => 'nullable|string|in:energetic,stressed,tired,happy,neutral',
+        
         ]);
+
+        // Handle the photo upload first
+        if ($request->hasFile('photo')) {
+            $validatedData['photo_path'] = $request->file('photo')->store('workout-photos', 'public');
+        }
+
+        // Handle the route data
+        if (isset($validatedData['route'])) {
+            $validatedData['route'] = json_decode($validatedData['route'], true);
+        }
+        
         /** @var \App\Models\User $user */
         $user = Auth::user();
+        
+        // Create the workout with all validated data
+        $workout = $user->workouts()->create($validatedData);
 
-        // Create the workout first
-        $workout = $user->workouts()->create($validated);
+        $achievementService->checkAndAwardMilestones($user, $workout);
 
-        // Then, calculate and save calories
+        // Calculate calories
         $calories = $calorieService->calculate($workout);
-        $workout->update(['calories_burned' => $calories]);
+        if ($calories) {
+            $workout->update(['calories_burned' => $calories]);
+        }
 
-        return redirect()->route('workouts.index')->with('status', 'Workout logged successfully!');
+        // FIX #2: Redirect to the new workout's summary page
+        return redirect()->route('workouts.show', $workout)->with('status', 'Workout logged successfully!');
     }
 
 
@@ -69,30 +92,47 @@ class WorkoutController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Workout $workout, CalorieService $calorieService) // The red line will now be gone
+    // In app/Http/Controllers/WorkoutController.php
+
+    public function update(Request $request, CalorieService $calorieService)
     {
-        if (Auth::id() !== $workout->user_id) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        
-
-        $validated = $request->validate([
+        // FIX #1: Added 'jpg', 'png', 'jpeg' to the validation rule
+        $validatedData = $request->validate([
             'type' => 'required|string|in:running,cycling,weightlifting',
             'workout_date' => 'required|date',
-            'duration_minutes' => 'required|integer|min:1', // It's now a required, top-level field
+            'duration_minutes' => 'required|integer|min:1',
             'details' => 'nullable|array',
+            'route' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpg,png,jpeg|max:2048', // More mime types
+            'notes' => 'nullable|string|max:2000',
+            'mood' => 'nullable|string|in:energetic,stressed,tired,happy,neutral',
         ]);
 
-        $workout->update($validated);
+        // Handle the photo upload first
+        if ($request->hasFile('photo')) {
+            $validatedData['photo_path'] = $request->file('photo')->store('workout-photos', 'public');
+        }
 
-        // Re-calculate and save calories
+        // Handle the route data
+        if (isset($validatedData['route'])) {
+            $validatedData['route'] = json_decode($validatedData['route'], true);
+        }
+        
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        // Create the workout with all validated data
+        $workout = $user->workouts()->create($validatedData);
+
+        // Calculate calories
         $calories = $calorieService->calculate($workout);
-        $workout->update(['calories_burned' => $calories]);
+        if ($calories) {
+            $workout->update(['calories_burned' => $calories]);
+        }
 
-        return redirect()->route('workouts.index')->with('status', 'Workout updated successfully!');
+        // FIX #2: Redirect to the new workout's summary page
+        return redirect()->route('workouts.show', $workout)->with('status', 'Workout logged successfully!');
     }
-
     /**
      * Remove the specified resource from storage.
      */
@@ -105,4 +145,50 @@ class WorkoutController extends Controller
         $workout->delete();
         return redirect()->route('workouts.index')->with('status', 'Workout deleted successfully!');
     }
+    public function show(Workout $workout)
+    {
+        // Authorization check
+        if (Auth::id() !== $workout->user_id) {
+            abort(403);
+        }
+
+        return view('workouts.show', ['workout' => $workout]);
+    }
+    // In WorkoutController.php
+
+    public function recalculate(Workout $workout, CalorieService $calorieService)
+    {
+        // Authorization check
+        if (Auth::id() !== $workout->user_id) {
+            abort(403);
+        }
+
+        // Re-calculate and save the calories
+        $calories = $calorieService->calculate($workout);
+        $workout->update(['calories_burned' => $calories]);
+
+        // Redirect back to the show page with a success message
+        return redirect()->route('workouts.show', $workout)->with('status', 'Calories recalculated successfully!');
+    }
+
+
+
+    public function journey()
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Get all workouts, order by the newest first
+        $workouts = $user->workouts()->latest('workout_date')->get();
+
+        // Group the workouts by the date they were performed on
+        $workoutsByDate = $workouts->groupBy(function ($workout) {
+            return $workout->workout_date->format('Y-m-d');
+        });
+
+        return view('workouts.journey', ['workoutsByDate' => $workoutsByDate]);
+    }
+
+
+
 }

@@ -17,16 +17,13 @@ class Workout extends Model
      * @var array
      */
     protected $fillable = [
-    'user_id', 'type', 'workout_date', 'duration_minutes', 'details', 'calories_burned',
+    'user_id', 'type', 'workout_date', 'duration_minutes', 'details', 'calories_burned', 'route', 'photo_path','notes','mood', 
     ];
-    
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
+
     protected $casts = [
-        'details' => 'array', 
+        'details' => 'array',
+        'route' => 'array', // <-- Add this line
+        'workout_date' => 'date',
     ];
 
 

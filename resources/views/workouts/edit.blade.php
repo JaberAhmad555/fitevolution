@@ -1,3 +1,6 @@
+{{-- At the top of create.blade.php --}}
+
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -11,7 +14,7 @@
                 {{-- The key change is initializing x-data with the existing workout's type --}}
                 <div class="p-6 text-gray-900 dark:text-gray-100" x-data="{ workoutType: '{{ old('type', $workout->type) }}' }">
 
-                    <form method="POST" action="{{ route('workouts.store') }}">
+                    <form method="POST" action="{{ route('workouts.update', $workout) }}" enctype="multipart/form-data">
                         @csrf
 
                         <!-- Workout Type (Dropdown) -->
@@ -29,6 +32,23 @@
                             <x-input-label for="workout_date" :value="__('Date of Workout')" />
                             <x-text-input id="workout_date" class="block mt-1 w-full" type="date" name="workout_date" :value="old('workout_date')" required />
                         </div>
+
+                        {{-- In create.blade.php, after the "Workout Date" div --}}
+
+                        <!-- Mood Selector -->
+                        <div class="mt-4">
+                            <x-input-label for="mood" :value="__('How are you feeling today?')" />
+                            <select id="mood" name="mood" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <option value="">Select a mood (optional)</option>
+                                <option value="energetic">⚡ Energetic</option>
+                                <option value="stressed">😤 Stressed</option>
+                                <option value="tired">😴 Tired</option>
+                                <option value="happy">😊 Happy</option>
+                                <option value="neutral">😐 Neutral</option>
+                            </select>
+                        </div>
+
+{{-- The "Duration" div comes after this --}}
 
                         <!-- DURATION (NOW A PRIMARY FIELD) -->
                         <div class="mt-4">
@@ -57,12 +77,28 @@
                         </div>
 
                         <!-- DYNAMIC FIELDS END HERE -->
+                        {{-- ... (Just before the "Save Workout" button div) ... --}}
+
+                        <!-- Workout Photo -->
+                        <div class="mt-4">
+                            <x-input-label for="photo" :value="__('Add a Photo (Optional)')" />
+                            <input id="photo" name="photo" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-900/50 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 mt-1"/>
+                            <x-input-error class="mt-2" :messages="$errors->get('photo')" />
+                        </div>
+                        <div class="mt-4">
+                            <x-input-label for="notes" :value="__('Share Your Experience (Optional)')" />
+                            <textarea id="notes" name="notes" rows="4" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" placeholder="How did it feel? Any personal records?">{{ old('notes') }}</textarea>
+                            <x-input-error class="mt-2" :messages="$errors->get('notes')" />
+                        </div>
+
 
                         <div class="flex items-center justify-end mt-4">
                             <x-primary-button>
                                 {{ __('Save Workout') }}
                             </x-primary-button>
                         </div>
+
+                        
                     </form>
                 </div>
             </div>
