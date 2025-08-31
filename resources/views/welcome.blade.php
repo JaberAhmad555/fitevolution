@@ -27,7 +27,7 @@
     <main>
         {{-- HERO SECTION --}}
         <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-28 overflow-hidden">
-             <div class="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800/90"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800/90"></div>
             <div class="relative max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 {{-- Left Column: Text & CTA --}}
                 <div class="text-center lg:text-left">
@@ -44,10 +44,7 @@
                         </a>
                     </div>
                 </div>
-                {{-- Right Column: Image --}}
-                <div class="hidden lg:block">
-                    <img src="{{ asset('images/hero-column.jpg') }}" alt="Athlete working out" class="rounded-2xl shadow-2xl transform-gpu rotate-3">
-                </div>
+                
             </div>
         </section>
 
